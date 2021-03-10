@@ -8,9 +8,9 @@ object BankingJob extends BankingJobInterface {
 val sparkSession: SparkSession = SparkSession.builder().master("local").appName("Banking Data Mining").getOrCreate()
 
 def extractValidTransactions(accountsDf: DataFrame, transactionDf: DataFrame): DataFrame = {
-val jointDF = accountsDf.join(transactionDf, accountsDf("accountNumber") === transactionDf("toAccountNumber"), "leftouter")
-val filteredDF = jointDF.filter(jointDF("transfer") <= jointDF("balance"))
-return filteredDF
+val joinDF = accountsDf.join(transactionDf, accountsDf("accountNumber") === transactionDf("toAccountNumber"), "leftouter")
+val filterDF = joinDF.filter(joinDF("transfer") <= joinDF("balance"))
+return filterDF
 }
 
 def distinctTransactions(transactionsDf: DataFrame): Long =
@@ -28,8 +28,8 @@ ORDER BY count(1) desc
 limit 10;
 """
 )
-val RDDdf = sqlDF.rdd.map(x => (x.getString(0), x.getLong(1))).collectAsMap()
-return scala.collection.immutable.Map(RDDdf.toSeq: _*)
+val dfRDD = sqlDF.rdd.map(x => (x.getString(0), x.getLong(1))).collectAsMap()
+return scala.collection.immutable.Map(dfRDD.toSeq: _*)
 
 }
 }
